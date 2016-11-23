@@ -1,0 +1,79 @@
+---
+title: "Birds"
+author: "Brooke Watson"
+date: "November 22, 2016"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, results = "markup") 
+#opts_knit$set(root.dir = "/Users/Watson/Dropbox (EHA)/GVP")
+library(readxl)
+library(janitor)
+library(dplyr)
+library(devtools)
+library(knitr)
+library(data.table)
+install_github('brooke-watson/thesis')
+library(thesis)
+library(ggplot2)
+```
+ 
+Waterbird descriptive statistics. 
+Data from 2012 downloaded from http://wpe.wetlands.org/Imaps.
+
+```{r} 
+birds = read_excel("wpe5.xls", sheet = 1) %>% 
+  clean_names()
+```
+
+Number of unique waterbird species:  
+
+```{r}
+length(unique(birds$scientific_name))
+```
+
+Families of waterbirds and number of species within each family:  
+
+```{r}
+Waterbird_Family = birds$family_name
+kable(tabyl(Waterbird_Family, sort = TRUE))
+
+
+```
+ 
+Proportion of species within each family that are endangered. 
+ 
+```{r}
+redlist = birds %>% 
+    crosstab(redlist, family_name) %>% 
+    as.data.frame()
+barplot(as.matrix(redlist))
+
+g = ggplot(redlist, aes(redlist), group = redlist)  
+g + geom_bar()
+
+
+```
+
+Create a continent-specific subset of the data, and ensure that it's binary  
+
+```{r} 
+conts = birds %>%
+  select(africa, europe, asia, oceania, neotropics, north_america)
+mysub = function(x){gsub("X|x|[[:space:]]", 1, x)}
+contsbin = lapply(conts, mysub) 
+contsbin = lapply(contsbin, as.character) 
+contsbin = lapply(contsbin, as.numeric) %>% 
+    as.data.frame()
+
+```
+
+
+
+```{r}
+
+```
+
